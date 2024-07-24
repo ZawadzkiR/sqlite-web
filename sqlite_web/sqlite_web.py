@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__version__ = '0.6.4'
+__version__ = '0.6.3'
 
 import base64
 import datetime
@@ -223,6 +223,15 @@ class SqliteDataSet(DataSet):
             'WHERE type = ? AND name = ?', ('view', name))
         return cursor.fetchone() is not None
 
+    def get_tables_and_views(self):
+        tables = [row[0] for row in self.query(
+            'SELECT name FROM sqlite_master WHERE type = ? ORDER BY name',
+            ('table',)).fetchall()]
+        views = [row[0] for row in self.query(
+            'SELECT name FROM sqlite_master WHERE type = ? ORDER BY name',
+            ('view',)).fetchall()]
+        return tables, views
+
     def view_operations(self, name):
         cursor = self.query(
             'SELECT sql FROM sqlite_master WHERE type=? AND tbl_name=?',
@@ -388,7 +397,8 @@ def table_create():
     if not table:
         flash('Table name is required.', 'danger')
         dest = request.form.get('redirect') or url_for('index')
-        dest = '/' + dest.lstrip('/')  # idiot vulnerability "researchers".
+        if not dest.startswith('/'):
+            dest = '/' + dest
         return redirect(dest)
 
     try:
@@ -630,6 +640,8 @@ def table_content(table):
     if page_number == 'last': page_number = '1000000'
     page_number = int(page_number) if page_number.isdigit() else 1
 
+    search_query = request.args.get('search') or ''
+
     dataset.update_cache(table)
     ds_table = dataset[table]
     model = ds_table.model_class
@@ -643,7 +655,14 @@ def table_content(table):
     previous_page = page_number - 1 if page_number > 1 else None
     next_page = page_number + 1 if page_number < total_pages else None
 
-    query = ds_table.all().paginate(page_number, rows_per_page)
+    query = ds_table.all()
+    if search_query:
+        conditions = []
+        for field in ds_table.columns:
+            conditions.append(getattr(model, field).contains(search_query))
+        query = query.where(reduce(operator.or_, conditions))
+
+    query = query.paginate(page_number, rows_per_page)
 
     ordering = request.args.get('ordering')
     if ordering:
@@ -667,12 +686,12 @@ def table_content(table):
         page=page_number,
         previous_page=previous_page,
         query=query,
+        search_query=search_query,
         table=table,
         table_pk=model._meta.primary_key,
         table_sql=dataset.get_table_sql(table),
         total_pages=total_pages,
         total_rows=total_rows)
-
 def minimal_validate_field(field, value):
     if value.lower().strip() == 'null':
         value = None

@@ -2,6 +2,14 @@
 
 `sqlite-web` is a web-based SQLite database browser written in Python.
 
+### Modifications
+
+Two modifications have been made compared to the main project by author @coleifer located at [this link](https://github.com/coleifer/sqlite-web):
+
+* Field for searching values ​​in tables
+* Modified table display - separate tab for tables and views
+
+
 Project dependencies:
 
 * [flask](http://flask.pocoo.org)
