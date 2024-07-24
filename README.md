@@ -4,7 +4,7 @@
 
 ### Modifications
 
-Two modifications have been made compared to the main project by author @coleifer located at [this link](https://github.com/coleifer/sqlite-web):
+Two modifications have been made compared to the main project by author [@coleifer](https://github.com/coleifer) located at [this link](https://github.com/coleifer/sqlite-web):
 
 * Field for searching values ​​in tables
 * Modified table display - separate tab for tables and views
