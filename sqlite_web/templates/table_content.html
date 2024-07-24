@@ -8,13 +8,21 @@
 {% block content_tab_class %} active{% endblock %}
 
 {% block inner_content %}
-  {# add filters #}
+  <form method="get">
+    <div class="input-group mb-3">
+      <input type="text" name="search" class="form-control" placeholder="Search" value="{{ search_query }}">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+      </div>
+    </div>
+  </form>
+  
   <table class="table table-striped small cell-content">
     <thead>
       <tr>
         {% for column in columns %}
           <th>
-            <a href="./?ordering={% if ordering == column %}-{% endif %}{{ column }}">{{ column }}</a>
+            <a href="./?ordering={% if ordering == column %}-{% endif %}{{ column }}&search={{ search_query }}">{{ column }}</a>
           </th>
         {% endfor %}
         {% if not dataset.is_readonly and table_pk %}<th></th>{% endif %}
@@ -51,19 +59,19 @@
   <nav>
     <ul class="pagination">
       <li class="{% if not previous_page %}disabled {% endif %}page-item">
-        <a class="page-link" href="{{ url_for('table_content', table=table, page=1, ordering=ordering) }}">&laquo;</a>
+        <a class="page-link" href="{{ url_for('table_content', table=table, page=1, ordering=ordering, search=search_query) }}">&laquo;</a>
       </li>
       <li class="{% if not previous_page %}disabled {% endif %}page-item">
-        <a class="page-link" href="{{ url_for('table_content', table=table, page=previous_page, ordering=ordering) }}">&lsaquo;</a>
+        <a class="page-link" href="{{ url_for('table_content', table=table, page=previous_page, ordering=ordering, search=search_query) }}">&lsaquo;</a>
       </li>
       <li class="page-item disabled">
         <span class="page-link">Page {{ page }} / {{ total_pages }}</span>
       </li>
       <li class="{% if not next_page %}disabled {% endif %}page-item">
-        <a class="page-link" href="{{ url_for('table_content', table=table, page=next_page, ordering=ordering) }}">&rsaquo;</a>
+        <a class="page-link" href="{{ url_for('table_content', table=table, page=next_page, ordering=ordering, search=search_query) }}">&rsaquo;</a>
       </li>
       <li class="{% if not next_page %}disabled {% endif %}page-item">
-        <a class="page-link" href="{{ url_for('table_content', table=table, page=total_pages, ordering=ordering) }}">&raquo;</a>
+        <a class="page-link" href="{{ url_for('table_content', table=table, page=total_pages, ordering=ordering, search=search_query) }}">&raquo;</a>
       </li>
     </ul>
   </nav>
